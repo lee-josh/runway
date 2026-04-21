@@ -268,6 +268,10 @@ export default function JobTracker({ userId, userEmail }: Props) {
     const toInsert = rows.map((r) => ({
       ...r,
       user_id: userId,
+      notes: r.notes || "",
+      contact: r.contact || "",
+      round: r.round || "",
+      stage: r.stage || "",
       applied_date: r.applied_date || null,
       follow_up_date: r.follow_up_date || null,
     }));
