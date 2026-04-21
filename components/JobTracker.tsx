@@ -224,6 +224,29 @@ export default function JobTracker({ userId, userEmail }: Props) {
     setView("detail");
   };
 
+  const handleBulkStatusChange = async (ids: string[], status: Status) => {
+    await supabase
+      .from("jobs")
+      .update({ status, updated_at: new Date().toISOString() })
+      .in("id", ids)
+      .eq("user_id", userId);
+    setJobs((prev) => prev.map((j) => ids.includes(j.id) ? { ...j, status } : j));
+  };
+
+  const handleBulkDelete = async (ids: string[]) => {
+    await supabase.from("jobs").delete().in("id", ids).eq("user_id", userId);
+    setJobs((prev) => prev.filter((j) => !ids.includes(j.id)));
+  };
+
+  const handleBulkStale = async (ids: string[], isStale: boolean) => {
+    await supabase
+      .from("jobs")
+      .update({ is_stale: isStale, updated_at: new Date().toISOString() })
+      .in("id", ids)
+      .eq("user_id", userId);
+    setJobs((prev) => prev.map((j) => ids.includes(j.id) ? { ...j, is_stale: isStale } : j));
+  };
+
   const toggleStale = async (id: string) => {
     const job = jobs.find((j) => j.id === id);
     if (!job) return;
@@ -438,6 +461,9 @@ export default function JobTracker({ userId, userEmail }: Props) {
               setErrors({});
               setView("add");
             }}
+            onBulkStatusChange={handleBulkStatusChange}
+            onBulkDelete={handleBulkDelete}
+            onBulkStale={handleBulkStale}
           />
         )}
 
