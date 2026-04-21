@@ -343,6 +343,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
     >
       {/* Header */}
       <header
+        className="app-header"
         style={{
           borderBottom: "1px solid rgba(255,255,255,0.06)",
           padding: "0 32px",
@@ -371,7 +372,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
           <span style={{ fontSize: 12, color: "#334155", fontWeight: 500 }}>job search</span>
         </div>
 
-        <nav style={{ display: "flex", gap: 4 }}>
+        <nav className="header-nav" style={{ display: "flex", gap: 4 }}>
           {(["dashboard", "list", "reminders"] as const).map((v) => (
             <button
               key={v}
@@ -410,10 +411,10 @@ export default function JobTracker({ userId, userEmail }: Props) {
           ))}
         </nav>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "#334155" }}>{userEmail}</span>
+        <div className="header-right" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span className="desktop-only" style={{ fontSize: 12, color: "#334155" }}>{userEmail}</span>
           <button
-            className="btn-ghost"
+            className="btn-ghost desktop-only"
             style={{ padding: "6px 12px", fontSize: 12 }}
             onClick={handleSignOut}
           >
@@ -442,7 +443,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
       </header>
 
       {/* Main content */}
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 32px" }}>
+      <main className="page-main" style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 32px" }}>
         {view === "dashboard" && (
           <DashboardView
             jobs={jobs}

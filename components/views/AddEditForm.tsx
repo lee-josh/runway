@@ -121,7 +121,7 @@ export default function AddEditForm({
         )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         {(
           [
             { key: "company", label: "Company *", placeholder: "e.g. Stripe" },
@@ -169,7 +169,7 @@ export default function AddEditForm({
         </div>
 
         {/* Stale toggle */}
-        <div style={{ gridColumn: "span 2" }}>
+        <div className="form-full" style={{ gridColumn: "span 2" }}>
           <div
             style={{
               height: 1,
@@ -235,7 +235,7 @@ export default function AddEditForm({
         </div>
 
         {/* Follow-up section */}
-        <div style={{ gridColumn: "span 2", marginTop: 8 }}>
+        <div className="form-full" style={{ gridColumn: "span 2", marginTop: 8 }}>
           <div style={{ height: 1, background: "rgba(255,255,255,0.06)", marginBottom: 20 }} />
           <div
             style={{
@@ -271,7 +271,7 @@ export default function AddEditForm({
           />
         </div>
 
-        <div style={{ gridColumn: "span 2" }}>
+        <div className="form-full" style={{ gridColumn: "span 2" }}>
           <div className="label">Notes</div>
           <textarea
             className="input-field"

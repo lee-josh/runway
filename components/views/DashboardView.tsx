@@ -118,6 +118,7 @@ export default function DashboardView({ jobs, stats, reminders, onNavigate, onOp
       )}
 
       <div
+        className="stats-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",
@@ -154,7 +155,7 @@ export default function DashboardView({ jobs, stats, reminders, onNavigate, onOp
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="dashboard-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div className="stat-card">
           <div className="label" style={{ marginBottom: 20 }}>
             Pipeline Breakdown

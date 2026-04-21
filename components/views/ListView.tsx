@@ -104,7 +104,7 @@ export default function ListView({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+        <div className="filter-pills">
           {["All", ...STATUSES].map((s) => {
             const sc = STATUS_COLORS[s as Status];
             const isActive = filterStatus === s;
@@ -359,6 +359,7 @@ export default function ListView({
               {job.is_stale && <StaleBadge />}
               {job.salary_range && (
                 <div
+                  className="job-row-secondary"
                   style={{
                     fontSize: 12,
                     color: "#a3e635",
@@ -373,6 +374,7 @@ export default function ListView({
               )}
               {job.stage && (
                 <div
+                  className="job-row-secondary"
                   style={{
                     fontSize: 12,
                     color: "#818cf8",
@@ -387,6 +389,7 @@ export default function ListView({
               )}
               {job.round && (
                 <div
+                  className="job-row-secondary"
                   style={{
                     fontSize: 12,
                     color: "#475569",
@@ -399,7 +402,7 @@ export default function ListView({
                 </div>
               )}
               {job.applied_date && (
-                <div style={{ fontSize: 12, color: "#334155", minWidth: 80, textAlign: "right" }}>
+                <div className="job-row-secondary" style={{ fontSize: 12, color: "#334155", minWidth: 80, textAlign: "right" }}>
                   {formatDateShort(job.applied_date)}
                 </div>
               )}
