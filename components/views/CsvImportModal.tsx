@@ -1,4 +1,6 @@
-import { useRef } from "react";
+"use client";
+
+import { useState, useRef } from "react";
 import { JobFormData } from "@/lib/types";
 import { STATUS_COLORS } from "@/lib/constants";
 import { parseCSV } from "@/lib/utils";
@@ -10,8 +12,8 @@ interface Props {
 
 export default function CsvImportModal({ onImport, onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = React.useState<JobFormData[] | null>(null);
-  const [error, setError] = React.useState("");
+  const [preview, setPreview] = useState<JobFormData[] | null>(null);
+  const [error, setError] = useState("");
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -187,5 +189,3 @@ export default function CsvImportModal({ onImport, onClose }: Props) {
   );
 }
 
-// Need React import for useState in this file
-import React from "react";
