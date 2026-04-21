@@ -269,9 +269,12 @@ export default function JobTracker({ userId, userEmail }: Props) {
       ...r,
       user_id: userId,
       notes: r.notes || "",
+      url: r.url || "",
       contact: r.contact || "",
       round: r.round || "",
       stage: r.stage || "",
+      follow_up_note: r.follow_up_note || "",
+      salary_range: r.salary_range || "",
       applied_date: r.applied_date || null,
       follow_up_date: r.follow_up_date || null,
     }));
