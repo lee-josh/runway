@@ -242,9 +242,18 @@ export default function JobTracker({ userId, userEmail }: Props) {
   };
 
   const handleImportCsv = async (rows: JobFormData[]) => {
-    const toInsert = rows.map((r) => ({ ...r, user_id: userId }));
+    const toInsert = rows.map((r) => ({
+      ...r,
+      user_id: userId,
+      applied_date: r.applied_date || null,
+      follow_up_date: r.follow_up_date || null,
+    }));
     const { data, error } = await supabase.from("jobs").insert(toInsert).select();
-    if (!error && data) {
+    if (error) {
+      alert(`Import failed: ${error.message}`);
+      return;
+    }
+    if (data) {
       setJobs((prev) => [...(data as Job[]), ...prev]);
     }
     setCsvModal(false);
