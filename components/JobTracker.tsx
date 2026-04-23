@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { Job, JobFormData, Status } from "@/lib/types";
-import { STATUSES, EMPTY_FORM } from "@/lib/constants";
+import { STATUSES, EMPTY_FORM, newJobForm } from "@/lib/constants";
 import { daysDiff } from "@/lib/utils";
 import DashboardView from "@/components/views/DashboardView";
 import ListView from "@/components/views/ListView";
@@ -449,7 +449,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
             className="btn-primary"
             style={{ padding: "8px 20px", fontSize: 13 }}
             onClick={() => {
-              setForm(EMPTY_FORM);
+              setForm(newJobForm());
               setEditId(null);
               setErrors({});
               setView("add");
@@ -482,7 +482,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
             setSearch={setSearch}
             onOpenDetail={openDetail}
             onAddJob={() => {
-              setForm(EMPTY_FORM);
+              setForm(newJobForm());
               setEditId(null);
               setErrors({});
               setView("add");

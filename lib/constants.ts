@@ -35,3 +35,8 @@ export const EMPTY_FORM: JobFormData = {
   salary_range: "",
   is_stale: false,
 };
+
+export const newJobForm = (): JobFormData => ({
+  ...EMPTY_FORM,
+  applied_date: new Date().toISOString().split("T")[0],
+});
