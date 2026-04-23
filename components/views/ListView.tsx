@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Job, Status } from "@/lib/types";
 import { STATUSES, STATUS_COLORS } from "@/lib/constants";
 import { formatDateShort } from "@/lib/utils";
@@ -37,11 +37,23 @@ export default function ListView({
 }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [sortBy, setSortBy] = useState("date_desc");
 
   // Clear selection when filter or search changes
   useEffect(() => {
     setSelectedIds(new Set());
   }, [filterStatus, search]);
+
+  const sortedJobs = useMemo(() => {
+    const list = [...filteredJobs];
+    switch (sortBy) {
+      case "date_asc":  return list.sort((a, b) => (a.applied_date || "").localeCompare(b.applied_date || ""));
+      case "date_desc": return list.sort((a, b) => (b.applied_date || "").localeCompare(a.applied_date || ""));
+      case "company":   return list.sort((a, b) => a.company.localeCompare(b.company));
+      case "status":    return list.sort((a, b) => a.status.localeCompare(b.status));
+      default:          return list;
+    }
+  }, [filteredJobs, sortBy]);
 
   const toggleSelect = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -54,9 +66,9 @@ export default function ListView({
 
   const toggleSelectAll = () => {
     setSelectedIds(
-      selectedIds.size === filteredJobs.length
+      selectedIds.size === sortedJobs.length
         ? new Set()
-        : new Set(filteredJobs.map((j) => j.id))
+        : new Set(sortedJobs.map((j) => j.id))
     );
   };
 
@@ -78,7 +90,7 @@ export default function ListView({
     runBulkAction(() => onBulkDelete(Array.from(selectedIds)));
   };
 
-  const allSelected = filteredJobs.length > 0 && selectedIds.size === filteredJobs.length;
+  const allSelected = sortedJobs.length > 0 && selectedIds.size === sortedJobs.length;
   const someSelected = selectedIds.size > 0 && !allSelected;
 
   return (
@@ -104,6 +116,17 @@ export default function ListView({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <select
+          className="input-field"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={{ width: "auto", padding: "6px 12px", fontSize: 12 }}
+        >
+          <option value="date_desc">Date applied ↓</option>
+          <option value="date_asc">Date applied ↑</option>
+          <option value="company">Company A–Z</option>
+          <option value="status">Status</option>
+        </select>
         <div className="filter-pills">
           {["All", ...STATUSES].map((s) => {
             const sc = STATUS_COLORS[s as Status];
@@ -285,7 +308,7 @@ export default function ListView({
       {/* Job list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {/* Select-all row */}
-        {filteredJobs.length > 0 && (
+        {sortedJobs.length > 0 && (
           <div
             style={{
               display: "flex",
@@ -301,12 +324,12 @@ export default function ListView({
               onClick={toggleSelectAll}
             />
             <span style={{ fontSize: 11, color: "#334155", userSelect: "none" }}>
-              {allSelected ? "Deselect all" : `Select all ${filteredJobs.length}`}
+              {allSelected ? "Deselect all" : `Select all ${sortedJobs.length}`}
             </span>
           </div>
         )}
 
-        {filteredJobs.length === 0 && (
+        {sortedJobs.length === 0 && (
           <div style={{ textAlign: "center", padding: "60px 0", color: "#334155" }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
             <div style={{ fontSize: 16, fontWeight: 500, color: "#475569" }}>No applications yet</div>
@@ -316,7 +339,7 @@ export default function ListView({
           </div>
         )}
 
-        {filteredJobs.map((job) => {
+        {sortedJobs.map((job) => {
           const sc = STATUS_COLORS[job.status];
           const isSelected = selectedIds.has(job.id);
           return (

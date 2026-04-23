@@ -197,10 +197,10 @@ export default function AddEditForm({
                   marginBottom: 3,
                 }}
               >
-                ⏸ Mark as Stale
+                ⏸ Mark as Inactive (Stale)
               </div>
               <div style={{ fontSize: 12, color: "#475569" }}>
-                No response in 2+ weeks — flag for review or archive
+                Flags this role as inactive right now. Roles with no response after 14 days are flagged automatically.
               </div>
             </div>
             <button

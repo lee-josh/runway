@@ -38,7 +38,7 @@ export default function JobTracker({ userId, userEmail }: Props) {
   const [scrapeError, setScrapeError] = useState("");
   const [scrapeSuccess, setScrapeSuccess] = useState(false);
 
-  // Load jobs from Supabase
+  // Load jobs from Supabase, then auto-stale any Applied job with no response after 14 days
   useEffect(() => {
     async function loadJobs() {
       const { data, error } = await supabase
@@ -46,7 +46,25 @@ export default function JobTracker({ userId, userEmail }: Props) {
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false });
-      if (!error && data) setJobs(data as Job[]);
+      if (!error && data) {
+        const jobs = data as Job[];
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 14);
+        const cutoffStr = cutoff.toISOString().split("T")[0];
+        const toStale = jobs.filter(
+          (j) => !j.is_stale && j.applied_date && j.applied_date <= cutoffStr && j.status === "Applied"
+        );
+        if (toStale.length > 0) {
+          const ids = toStale.map((j) => j.id);
+          await supabase
+            .from("jobs")
+            .update({ is_stale: true, updated_at: new Date().toISOString() })
+            .in("id", ids)
+            .eq("user_id", userId);
+          toStale.forEach((j) => { j.is_stale = true; });
+        }
+        setJobs(jobs);
+      }
       setLoading(false);
     }
     loadJobs();
