@@ -42,11 +42,11 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [
         {
           role: "user",
-          content: `Here is the content of a job posting page:\n\n${pageText.slice(0, 12000)}\n\nExtract and return ONLY a JSON object (no markdown fences, no explanation, raw JSON only) with these exact fields:\n{\n  "company": "the company/employer name",\n  "title": "the exact job title",\n  "salary_range": "the salary or compensation range exactly as written, empty string if not listed",\n  "contact": "recruiter or HR contact email/name if listed, else empty string",\n  "notes": "1-2 sentence summary of the role and key requirements"\n}\n\nReturn raw JSON only.`,
+          content: `Here is the content of a job posting page:\n\n${pageText.slice(0, 30000)}\n\nExtract and return ONLY a JSON object (no markdown fences, no explanation, raw JSON only) with these exact fields:\n{\n  "company": "the company/employer name",\n  "title": "the exact job title",\n  "salary_range": "the salary or compensation range. If listed as a table by location (e.g. US: $X-Y, UK: £X-Y), return the US range if present, otherwise the first range listed. Empty string if no salary is mentioned anywhere.",\n  "contact": "recruiter or HR contact email/name if listed, else empty string",\n  "notes": "1-2 sentence summary of the role and key requirements"\n}\n\nReturn raw JSON only.`,
         },
       ],
     }),
