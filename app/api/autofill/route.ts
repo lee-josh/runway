@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Strip post-apply suffixes that lead to confirmation/thank-you pages
-  const url = rawUrl.replace(/\/(confirmation|apply|applied|success|thank[-_]?you)(\/.*)?(\?.*)?$/i, "");
+  const url = rawUrl.replace(/\/(confirmation|apply|applied|success|thank[-_]?you|thanks)(\/.*)?(\?.*)?$/i, "");
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
