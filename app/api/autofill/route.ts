@@ -17,7 +17,20 @@ export async function POST(request: NextRequest) {
   }
 
   // Strip post-apply suffixes that lead to confirmation/thank-you pages
-  const url = rawUrl.replace(/\/(confirmation|apply|applied|success|thank[-_]?you|thanks)(\/.*)?(\?.*)?$/i, "");
+  let url = rawUrl.replace(/\/(confirmation|apply|applied|success|thank[-_]?you|thanks)(\/.*)?(\?.*)?$/i, "");
+
+  // Rewrite embedded Greenhouse URLs (e.g. wing.com/careers/ID?gh_jid=ID)
+  // to the canonical job-boards.greenhouse.io URL so Jina sees the real content
+  try {
+    const parsed = new URL(url);
+    const ghJid = parsed.searchParams.get("gh_jid");
+    if (ghJid) {
+      const companySlug = parsed.hostname.replace(/^www\./, "").split(".")[0];
+      url = `https://job-boards.greenhouse.io/${companySlug}/jobs/${ghJid}`;
+    }
+  } catch {
+    // invalid URL — leave as-is and let the fetch fail naturally
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
