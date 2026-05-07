@@ -17,16 +17,31 @@ export async function POST(request: NextRequest) {
   }
 
   // Strip post-apply suffixes that lead to confirmation/thank-you pages
-  let url = rawUrl.replace(/\/(confirmation|apply|applied|success|thank[-_]?you|thanks)(\/.*)?(\?.*)?$/i, "");
+  let url = rawUrl.replace(/\/(confirmation|application|apply|applied|success|thank[-_]?you|thanks)(\/.*)?(\?.*)?$/i, "");
 
-  // Rewrite embedded Greenhouse URLs (e.g. wing.com/careers/ID?gh_jid=ID)
-  // to the canonical job-boards.greenhouse.io URL so Jina sees the real content
+  // Rewrite embedded ATS URLs to their canonical hosted job board URLs.
+  // Companies often embed ATS widgets on their own career pages via a query param;
+  // Jina sees the company shell (no job content) unless we redirect to the real listing.
   try {
     const parsed = new URL(url);
+    const companySlug = parsed.hostname.replace(/^www\./, "").split(".")[0];
+
+    // Greenhouse: company.com/careers?gh_jid=ID → job-boards.greenhouse.io/COMPANY/jobs/ID
     const ghJid = parsed.searchParams.get("gh_jid");
     if (ghJid) {
-      const companySlug = parsed.hostname.replace(/^www\./, "").split(".")[0];
       url = `https://job-boards.greenhouse.io/${companySlug}/jobs/${ghJid}`;
+    }
+
+    // Ashby: company.com/careers?ashby_jid=UUID → jobs.ashbyhq.com/COMPANY/UUID
+    const ashbyJid = parsed.searchParams.get("ashby_jid");
+    if (ashbyJid) {
+      url = `https://jobs.ashbyhq.com/${companySlug}/${ashbyJid}`;
+    }
+
+    // Lever embedded: company.com/jobs?lever-job-id=UUID → jobs.lever.co/COMPANY/UUID
+    const leverJid = parsed.searchParams.get("lever-job-id");
+    if (leverJid) {
+      url = `https://jobs.lever.co/${companySlug}/${leverJid}`;
     }
   } catch {
     // invalid URL — leave as-is and let the fetch fail naturally
