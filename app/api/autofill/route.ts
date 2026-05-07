@@ -52,6 +52,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Autofill not configured" }, { status: 503 });
   }
 
+  // Detect client location for location-based salary matching
+  let salaryLocationHint = "If multiple ranges are listed by region, return the US range or the first one listed.";
+  try {
+    const clientIp = request.headers.get("x-real-ip") || request.headers.get("x-forwarded-for")?.split(",")[0].trim();
+    if (clientIp && clientIp !== "127.0.0.1" && clientIp !== "::1") {
+      const geoRes = await fetch(`https://ipapi.co/${clientIp}/json/`, {
+        headers: { "User-Agent": "runway-job-tracker/1.0" },
+      });
+      if (geoRes.ok) {
+        const geo = await geoRes.json();
+        if (geo.country_name && !geo.error) {
+          const location = geo.region ? `${geo.region}, ${geo.country_name}` : geo.country_name;
+          salaryLocationHint = `The user is located in ${location}. If salary ranges are listed by region or location, return the range that applies to them specifically. For example, if California and non-California US ranges are both listed and the user is in California, return the California range.`;
+        }
+      }
+    }
+  } catch {
+    // geolocation failed — fall back to default hint
+  }
+
   // Use Jina Reader to render the page (handles JS-heavy job boards)
   const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
     headers: { Accept: "text/plain" },
@@ -74,7 +94,7 @@ export async function POST(request: NextRequest) {
       messages: [
         {
           role: "user",
-          content: `Here is the content of a job posting page:\n\n${pageText.slice(0, 30000)}\n\nExtract and return ONLY a JSON object (no markdown fences, no explanation, raw JSON only) with these exact fields:\n{\n  "company": "the company/employer name",\n  "title": "the exact job title",\n  "salary_range": "the salary or compensation range. If listed as a table by location (e.g. US: $X-Y, UK: £X-Y), return the US range if present, otherwise the first range listed. Empty string if no salary is mentioned anywhere.",\n  "contact": "recruiter or HR contact email/name if listed, else empty string",\n  "notes": "1-2 sentence summary of the role and key requirements"\n}\n\nReturn raw JSON only.`,
+          content: `Here is the content of a job posting page:\n\n${pageText.slice(0, 30000)}\n\nExtract and return ONLY a JSON object (no markdown fences, no explanation, raw JSON only) with these exact fields:\n{\n  "company": "the company/employer name",\n  "title": "the exact job title",\n  "salary_range": "the salary or compensation range. Look for any dollar or currency amounts described as salary, pay, or compensation — they may appear in a table, a paragraph, or inline text. Simplify verbose formats like '$143,000 [minimum salary in lowest market] to $205,000 [maximum]' into '$143,000 – $205,000'. ${salaryLocationHint} Empty string only if no salary figures appear anywhere on the page.",\n  "contact": "recruiter or HR contact email/name if listed, else empty string",\n  "notes": "1-2 sentence summary of the role and key requirements"\n}\n\nReturn raw JSON only.`,
         },
       ],
     }),
