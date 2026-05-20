@@ -81,6 +81,18 @@ export async function POST(request: NextRequest) {
   }
   const pageText = await jinaRes.text();
 
+  // Jina returns 200 even when the target blocks it — detect CAPTCHA/403 warnings
+  if (
+    pageText.includes("403") && pageText.includes("Forbidden") ||
+    pageText.toLowerCase().includes("captcha") ||
+    pageText.trim().length < 200
+  ) {
+    return NextResponse.json(
+      { error: "This job board blocks automated access. Copy the job title, salary, and any notes manually." },
+      { status: 422 }
+    );
+  }
+
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
